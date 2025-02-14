@@ -1,0 +1,804 @@
+.custom-container {
+    color: black;
+}
+
+.section-container {
+    border: 1px solid #dddbda;
+    border-radius: 0.5rem;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--lwc-colorBackgroundAlt, #ffffff);
+    border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
+    box-shadow: var(--lwc-shadowDropDown, 0 2px 3px 0 rgba(0, 0, 0, 0.16));
+}
+
+.modern-table {
+    --lwc-tableCellSpacing: 1.5rem;
+    height: 50vh;
+    display: block;
+    font-size: medium;
+    font-family: 'Salesforce Sans', 'Segoe UI', Roboto, sans-serif;
+}
+
+.user-picker {
+    max-width: 300px;
+}
+
+.page-info {
+    color: #706e6b;
+    font-size: 0.875rem;
+}
+
+.loading-spinner {
+    height: 100px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.slds-text-heading_small {
+    font-weight: 600;
+    color: #080707;
+}
+
+.slds-badge {
+    margin-left: 0.5rem;
+    vertical-align: text-top;
+}
+
+.slds-button_brand {
+    background-color: #0176d3;
+    border-color: #0176d3;
+}
+
+.slds-button_brand:hover {
+    background-color: #014486;
+    border-color: #014486;
+}
+
+.slds-nav-vertical {
+    position: sticky;
+    top: 1rem;
+}
+
+.modern-container {
+    --primary-color: #0176d3;
+    --sidebar-width: 280px;
+    --transition-speed: 0.3s;
+    height: 100vh;
+}
+
+.app-layout {
+    display: flex;
+    height: 100%;
+}
+
+/* Modern Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--lwc-colorBackgroundAltInverse, #032d60);
+    color: white;
+    padding: 1rem;
+    position: fixed;
+    height: 100%;
+    transition: var(--transition-speed);
+}
+
+.sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.logo {
+    background: white;
+    margin-bottom: 1rem;
+}
+
+.toggle-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.toggle-item {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.toggle-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.toggle-item.active {
+    background: var(--primary-color);
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    background: var(--lwc-colorBackgroundAlt, #f3f6f9);
+    min-height: 100vh;
+}
+
+.app-header {
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.content-area {
+    padding: 2rem;
+}
+
+.card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+}
+
+.card-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--lwc-colorBorder, #dddbda);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* Add to existing styles */
+.search-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-info {
+    color: var(--lwc-colorTextLabel, #706e6b);
+    font-size: 0.875rem;
+}
+
+/*
+
+lightning-datatable.modern-table th {
+    background: var(--lwc-colorBackgroundAlt, #f3f6f9);
+    font-weight: 700;
+}*/
+
+.toggle-option {
+    margin-bottom: 0.75rem;
+    --lwc-formLabelFontSize: 0.875rem;
+}
+
+/* Enhanced sticky headers for all tables */
+.data-table-container {
+    max-height: 65vh;
+    overflow-y: auto;
+    position: relative;
+    padding-top: 40px;
+    /* Match header height */
+}
+
+.data-table-container thead th {
+    position: sticky;
+    top: -40px;
+    /* Negative of padding-top */
+    z-index: 2;
+    background: var(--lwc-colorBackgroundAlt, #ffffff);
+    border-bottom: 2px solid var(--lwc-colorBorder, #dddbda);
+}
+
+
+
+.data-table-container th .slds-truncate {
+    font-weight: 600;
+    color: var(--lwc-colorTextLabel, #514f4d);
+}
+
+.data-table-container td {
+    color: var(--lwc-colorTextDefault, #080707);
+}
+
+/* Header Shadow */
+.data-table-container thead th {
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Object Permissions Table Specific */
+.object-permissions-table .slds-th__action {
+    padding: 0.5rem 1rem;
+}
+
+.object-permissions-table .slds-text-title_caps {
+    font-weight: 700;
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--lwc-colorTextHeading, #2b2826);
+    margin: 0;
+}
+
+/* Fix for object table scroll */
+.object-permissions-table.data-table-container {
+    max-height: 65vh;
+    overflow-y: auto;
+    position: relative;
+    padding-top: 40px;
+    /* Match header height */
+}
+
+/* Ensure all tables have consistent styling */
+[class$="-table"].data-table-container {
+    max-height: 65vh;
+    overflow-y: auto;
+    position: relative;
+    padding-top: 40px;
+}
+
+/* Header position fix */
+.data-table-container thead th {
+    top: 0;
+    z-index: 2;
+    margin-top: -40px;
+    /* Compensate for container padding */
+}
+
+/* Unified table styling */
+.slds-table {
+    background-color: #1b233d !important;
+    color: #ffffff !important;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Header styling */
+lightning-base-formatted-text {
+    background-color: #2a3655 !important;
+    color: #9fa8da !important;
+    font-size: 1.2rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid #3a4a6b;
+}
+
+/* Cell styling 
+.slds-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #3a4a6b;
+}*/
+
+/* Hover effects */
+.slds-table tbody tr:hover {
+    background-color: #2a3655 !important;
+    transition: background-color 0.3s ease;
+}
+
+/* Boolean icons */
+.slds-icon-utility-check {
+    fill: #4caf50 !important;
+}
+
+.slds-icon-utility-close {
+    fill: #f44336 !important;
+}
+
+/* Pagination controls */
+.slds-p-around_medium {
+    background-color: #2a3655;
+    border-radius: 8px;
+    margin-top: 1rem;
+    padding: 1rem;
+}
+
+/* Section headers */
+.slds-section__title {
+    font-size: 1.3rem !important;
+    color: #9fa8da !important;
+    padding: 1rem;
+    background-color: #2a3655;
+    border-radius: 8px;
+}
+
+/* Search inputs */
+.slds-input {
+    background-color: #2a3655 !important;
+    border-color: #3a4a6b !important;
+    color: #ffffff !important;
+    font-size: 1.1rem;
+}
+
+/* Buttons */
+.slds-button_neutral {
+    background-color: #3a4a6b !important;
+    color: #ffffff !important;
+    border: none;
+    padding: 0.8rem 1.5rem;
+}
+
+.slds-button:disabled {
+    opacity: 0.6;
+}
+
+/* Add to existing pagination styles */
+.pagination-controls {
+    background-color: #2a3655 !important;
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+
+.pagination-controls button {
+    background-color: #3a4a6b !important;
+    color: #e4e7f4 !important;
+    border: 1px solid #4a5a7b !important;
+    padding: 0.5rem 1rem;
+    font-size: 1.1rem;
+    margin: 0 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+    background-color: #4a5a7b !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #2a3655 !important;
+    border-color: #3a4a6b !important;
+}
+
+.page-info {
+    color: #9fa8da !important;
+    margin: 0 1rem;
+    font-size: 1.1rem;
+}
+
+
+/* Header styling 
+.modern-table .slds-th__action {
+    padding: 1rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #2c3e50;
+    text-transform: uppercase;
+}*/
+
+/* Modern table body styling 
+.modern-table .slds-cell-wrap {
+    padding: 1rem 1.5rem;
+    font-size: 0.95rem;
+    color: #4a5568;
+    line-height: 1.7;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f4f8;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*/
+/* Cell content spacing 
+.modern-table td {
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
+}
+*/
+/* Boolean cells styling 
+.modern-table .slds-checkbox [type=checkbox] + .slds-checkbox_faux {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.modern-table .slds-checkbox [type=checkbox]:checked + .slds-checkbox_faux:after {
+    width: 0.5rem;
+    height: 1rem;
+}
+*/
+/* Text cells styling */
+.modern-table .slds-truncate {
+    padding: 0.5rem 0;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+}
+
+/* Add to your component's CSS file */
+.slds-table td {
+    font-size: 0.875rem;
+    /* Standard Salesforce table font size */
+}
+
+/* Target specific columns by their header labels */
+.slds-table thead th[title="Object"]+th[title="Field"] {
+    --lwc-tableCellFontSize: 0.875rem;
+}
+
+/* Style object cells specifically */
+.slds-table td[data-label="Object"] {
+    font-size: 14px !important;
+    /* Fallback */
+    font-weight: bold !important;
+    color: #181818 !important;
+}
+
+
+
+/* For field names */
+.slds-table td[data-label="Field"] {
+    font-size: 0.9rem;
+    color: #080707;
+}
+
+/* Hover effects 
+.modern-table tr:hover td {
+    background-color: #f8fafc !important;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+}*/
+
+/* Status badges 
+.modern-table lightning-badge {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+*/
+/* Column spacing 
+.modern-table th:first-child,
+.modern-table td:first-child {
+    padding-left: 2rem;
+}
+
+.modern-table th:last-child,
+.modern-table td:last-child {
+    padding-right: 2rem;
+}
+*/
+/* Subtle animations 
+@keyframes rowEnter {
+    0% { transform: translateY(5px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.modern-table tr {
+    animation: rowEnter 0.3s ease-out;
+}
+
+/* Boolean alignment */
+.modern-table .slds-cell-checkbox {
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Text contrast 
+.modern-table .slds-text-title_bold {
+    color: #2d3748;
+    font-weight: 600;
+}
+*/
+/* Compact view for mobile */
+@media (max-width: 768px) {
+    .modern-table .slds-cell-wrap {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .modern-table th:first-child,
+    .modern-table td:first-child {
+        padding-left: 1.2rem;
+    }
+
+    .modern-table th:last-child,
+    .modern-table td:last-child {
+        padding-right: 1.2rem;
+    }
+}
+
+/* Subtle row separators */
+.modern-table tr:not(:last-child) td {
+    border-bottom: 1px solid #edf2f7;
+}
+
+/* Active row highlight */
+.modern-table tr.slds-is-selected td {
+    background-color: #f0f9ff !important;
+}
+
+/* Toggle container */
+.slds-checkbox_toggle.slds-grid {
+    display: flex !important;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Toggle label */
+.slds-checkbox_toggle .slds-form-element__label {
+    color: #fff !important;
+    font-size: 0.95rem;
+    font-weight: 500;
+    order: 1;
+    margin: 0;
+}
+
+/* Toggle track */
+.slds-checkbox_faux {
+    background-color: #5a6872 !important;
+    order: 2;
+    transition: all 0.2s ease;
+}
+
+/* Checked state */
+.slds-checkbox_toggle [type=checkbox]:checked~.slds-checkbox_faux_container .slds-checkbox_faux {
+    background-color: #4bca81 !important;
+}
+
+/* Toggle button */
+.slds-checkbox_faux:after {
+    background-color: white !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Status text */
+.slds-checkbox_on,
+.slds-checkbox_off {
+    color: #fff !important;
+    font-size: 0.9rem;
+    order: 3;
+    margin-left: 0.5rem;
+}
+
+/* Hover state */
+.slds-checkbox_toggle:hover .slds-checkbox_faux {
+    background-color: #485563 !important;
+}
+
+/* Remove default boolean styling */
+.slds-checkbox {
+    display: none !important;
+}
+
+/* Custom icon styling */
+.slds-icon-check {
+    --slds-c-icon-color-foreground-default: #4CAF50;
+}
+
+.slds-icon-cross {
+    --slds-c-icon-color-foreground-default: #F44336;
+}
+
+/* Center align icons */
+.slds-table td.slds-cell-edit .slds-grid {
+    justify-content: center;
+}
+
+/* Hide default boolean checkboxes */
+.slds-checkbox [type=checkbox]+.slds-checkbox_faux {
+    display: none;
+}
+
+/* Show custom icons */
+.slds-checkbox .slds-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Color the icons */
+.slds-icon-utility-check {
+    --slds-c-icon-color-foreground-default: #4CAF50;
+}
+
+.slds-icon-utility-close {
+    --slds-c-icon-color-foreground-default: #F44336;
+}
+
+.perm-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    /* 20-80 split */
+    gap: 1.5rem;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+.toggle-sidebar {
+    background-color: #f3f6f9;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.main-content {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+}
+
+/* Toggle specific styling */
+.toggle-sidebar lightning-input {
+    display: block;
+    margin-bottom: 1.5rem;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    .perm-grid-container {
+        grid-template-columns: 1fr;
+    }
+
+    .toggle-sidebar {
+        order: -1;
+        /* Move toggles above content on mobile */
+    }
+}
+
+.slds-modal {
+    z-index: 9001 !important;
+    /* Higher than default 9000 */
+}
+
+.slds-backdrop {
+    z-index: 9000 !important;
+}
+
+/* Ensure main content is below modal */
+lightning-card {
+    position: relative;
+    z-index: 1;
+}
+
+lightning-datatable {
+    display: block;
+    height: 50vh;
+}
+
+.custom-tableload{
+    font-size: 0.875rem;
+    display: flex;
+    height: 50vh;
+
+}
+.custom-table .slds-cell-wrap[data-label="Object"] {
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+
+.custom-table .slds-cell-wrap[data-label="Field"] {
+    font-size: 0.9rem;
+}
+
+:host .slds-table td[data-label="Object"] {
+    font-size: 0.875rem !important;
+}
+
+.ToggleBar-form {
+    padding: 1rem;
+    background: #f3f3f3;
+    border-radius: 8px;
+}
+
+.toggle-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: -9999px;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #0176d3;
+}
+
+input:checked+.slider:before {
+    transform: translateX(16px);
+}
+
+.toggle-label {
+    font-weight: 500;
+    color: #181818;
+}
+
+.header {
+
+    font-size: 1.25rem;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    padding: 6px;
+}
+
+.headerSidebar {
+
+    font-size: 1.25rem;
+    color: black;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    padding: 6px;
+}
+
+.header-container {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 20px;
+    text-shadow: 0 0 black;
+    position: relative;
+}
+
+.headerSidebar {
+    margin: 0;
+    line-height: 1;
+}
+
+/* Optional: Add hover effect */
+lightning-button-icon[icon-name="utility:info"] {
+    --sds-c-button-color-border: #0176d3;
+    --sds-c-button-color-background: transparent;
+}
+
+lightning-button-icon[icon-name="utility:info"]:hover {
+    --sds-c-button-color-border: #014486;
+}

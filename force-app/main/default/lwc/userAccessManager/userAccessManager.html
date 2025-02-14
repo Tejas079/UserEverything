@@ -1,0 +1,273 @@
+<!-- userPermissions.html -->
+
+<!-- <template if:true={showWelcomeModal}>
+<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="welcome-mat-100-label"
+    class="slds-modal slds-fade-in-open slds-modal_small">
+    <div class="slds-modal__container">
+        <button class="slds-button slds-button_icon slds-modal__close" onclick={closeWelcomeModal}>
+            <svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
+                <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#close"></use>
+            </svg>
+            <span class="slds-assistive-text">Cancel and close</span>
+        </button>
+        <div class="slds-modal__header slds-modal__header_empty"></div>
+        <div class="slds-modal__content" id="welcome-mat-100-content">
+            <div class="slds-welcome-mat slds-welcome-mat_splash">
+                <div class="slds-welcome-mat__content slds-grid">
+                    <div class="slds-welcome-mat__info slds-size_1-of-1" tabindex="0" role="region">
+                        <div class="slds-welcome-mat__info-content">
+                            <h2 class="slds-welcome-mat__info-title" id="welcome-mat-100-label">The Lightning Experience
+                                is here!</h2>
+                            <div class="slds-welcome-mat__info-description slds-text-longform">
+                                <p>Welcome to User Access Manager, the modern,  User Access Report Tool for your Org to analyse the User Access.</p>
+                            </div>
+                            <div class="slds-welcome-mat__info-actions">
+                                <button class="slds-button slds-button_brand">Learn More</button>
+                                <div class="slds-m-top_large">
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-checkbox">
+                                                <input type="checkbox" name="options" id="checkbox-unique-id-7"
+                                                    value="checkbox-unique-id-7" onchange={closeWelcomeModal} />
+                                                <label class="slds-checkbox__label" for="checkbox-unique-id-7">
+                                                    <span class="slds-checkbox_faux"></span>
+                                                    <span class="slds-form-element__label">Don&#x27;t show this
+                                                        again</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section></template>-->
+<template>
+
+    <lightning-card>
+        <div class="slds-grid slds-grid_vertical-align-start ">
+            <!-- Side Navigation -->
+            <div class="slds-col slds-size_3-of-12 slds-p-around_medium slds-border_right slds-theme_default ">
+                <div class="ToggleBar-form">
+                    <div class="header-container">
+                        <lightning-icon icon-name='utility:bundle_config' size="small" class="slds-m-right_x-small"></lightning-icon>
+                        <h1 class="headerSidebar">Access Configuration</h1>
+                        <lightning-button-icon 
+                            icon-name="utility:info" 
+                            variant="border-filled"
+                            class="slds-m-left_x-small"
+                            title="Information"
+                            onclick={showInfoMessage}>
+                        </lightning-button-icon>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-container">
+                            <lightning-icon icon-name="utility:record_collection" size="small"
+                                class="slds-m-right_x-small"></lightning-icon>
+                            <label class="switch">
+                                <input type="checkbox" id="recordTypesToggle" checked={showRecordTypes}
+                                    onchange={toggleRecordTypes}>
+                                <span class="slider"></span>
+                            </label>
+                            <label for="recordTypesToggle" class="toggle-label">Record Types</label>
+                        </div>
+
+                        <div class="toggle-container">
+                            <lightning-icon icon-name="utility:standard_objects" size="small"
+                                class="slds-m-right_x-small"></lightning-icon>
+                            <label class="switch">
+                                <input type="checkbox" id="objectsToggle" checked={showObjects}
+                                    onchange={toggleObjects}>
+                                <span class="slider"></span>
+                            </label>
+                            <label for="objectsToggle" class="toggle-label">Objects</label>
+                        </div>
+
+                        <div class="toggle-container">
+                            <lightning-icon icon-name="standard:custody_entry_verification" size="small"
+                                class="slds-m-right_x-small"></lightning-icon>
+                            <label class="switch">
+                                <input type="checkbox" id="fieldsToggle" checked={showFields} onchange={toggleFields}>
+                                <span class="slider"></span>
+                            </label>
+                            <label for="fieldsToggle" class="toggle-label">Fields</label>
+                        </div>
+
+                        <div class="toggle-container">
+                            <lightning-icon icon-name="utility:mark_all_as_read" size="small"
+                                class="slds-m-right_x-small"></lightning-icon>
+                            <label class="switch">
+                                <input type="checkbox" id="systemPermissionsToggle" checked={showSystemPermissions}
+                                    onchange={toggleSystemPermissions}>
+                                <span class="slider"></span>
+                            </label>
+                            <label for="systemPermissionsToggle" class="toggle-label">System Permissions</label>
+                        </div>
+
+                        <div class="toggle-container">
+                            <lightning-icon icon-name="utility:privately_shared" size="small"
+                                class="slds-m-right_x-small"></lightning-icon>
+                            <label class="switch">
+                                <input type="checkbox" id="sharingRulesToggle" checked={showSharingRules}
+                                    onchange={handleSharingRulesToggle}>
+                                <span class="slider"></span>
+                            </label>
+                            <label for="sharingRulesToggle" class="toggle-label">Sharing Rules</label>
+                        </div>
+
+                        <div class="toggle-container">
+                            <lightning-icon icon-name="utility:user_role" size="small"
+                                class="slds-m-right_x-small"></lightning-icon>
+                            <label class="switch">
+                                <input type="checkbox" id="roleHierarchyToggle" checked={showRoleHierarchy}
+                                    onchange={handleRoleHierarchyToggle}>
+                                <span class="slider"></span>
+                            </label>
+                            <label for="roleHierarchyToggle" class="toggle-label">Role Hierarchy</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="slds-col slds-size_9-of-12 slds-p-around_medium">
+                <div class="header">
+                    <lightning-icon icon-name='utility:user' alternative-text='user' variant='inverse' size='small'
+                        title='user'></lightning-icon>
+                    <slot name="header">User Access Manager</slot>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-bottom_medium">
+                    <div class="slds-col">
+                        <lightning-combobox label="Select User" value={selectedUserId} options={userOptions}
+                            onchange={handleUserChange} variant="label-hidden"></lightning-combobox>
+                    </div>
+                </div>
+
+                <template if:true={showRecordTypes}>
+                    <div class="section-container slds-m-bottom_medium">
+                        <h2 class="slds-text-heading_small slds-m-bottom_small">
+                            Record Type Access
+
+                        </h2>
+                        <lightning-datatable data={recordTypePermissions} columns={recordTypeColumns} key-field="id"
+                            hide-checkbox-column resize-column-disabled class="modern-table">
+                        </lightning-datatable>
+                    </div>
+                </template>
+
+                <template if:true={showObjects}>
+                    <div class="section-container slds-m-around_medium">
+                        <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
+                            <h2 class="slds-text-heading_small">
+                                Object Permissions <lightning-badge label={totalObjectRecords}></lightning-badge>
+                            </h2>
+                            <div class="slds-col slds-grid slds-grid_align-end">
+                                <lightning-input type="search" placeholder="Search objects..." value={searchTerm}
+                                    onchange={handleObjectSearch} variant="label-hidden"
+                                    class="slds-m-left_small"></lightning-input>
+                            </div>
+                        </div>
+                        <div class="slds-grid slds-grid_align-center">
+                            <lightning-button-icon icon-name="utility:chevronleft" disabled={isFirstObjectPage}
+                                onclick={handleObjectPrevious} variant="border-filled"
+                                alternative-text="Previous"></lightning-button-icon>
+                            <span class="slds-m-horizontal_x-small page-info">{objectPageInfo}</span>
+                            <lightning-button-icon icon-name="utility:chevronright" disabled={isLastObjectPage}
+                                onclick={handleObjectNext} variant="border-filled"
+                                alternative-text="Next"></lightning-button-icon>
+                        </div>
+                        <lightning-datatable data={filteredObjectPermissions} columns={objectColumns} key-field="Id"
+                            hide-checkbox-column resize-column-disabled class="modern-table"></lightning-datatable>
+                    </div>
+                </template>
+
+                <template if:true={showFields}>
+                    <div class="section-container slds-m-around_medium">
+                        <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
+                            <h2 class="slds-text-heading_small">
+                                Field Permissions  
+                            </h2>
+                            <div class="slds-col slds-grid slds-grid_align-end">
+                                <lightning-input type="search" placeholder="Search fields or objects..."
+                                    value={fieldSearchTerm} onchange={handleFieldSearch} variant="label-hidden"
+                                    class="slds-m-left_small"></lightning-input>
+                            </div>
+                        </div>
+                        <div class="slds-grid slds-grid_align-center">
+                            <lightning-button-icon icon-name="utility:chevronleft" disabled={isFirstFieldPage}
+                                onclick={handleFieldPrevious} variant="border-filled"
+                                alternative-text="Previous"></lightning-button-icon>
+                            <span class="slds-m-horizontal_x-small page-info">{pageInfo}</span>
+                            <lightning-button-icon icon-name="utility:chevronright" disabled={disableNextButton}
+                                onclick={handleFieldNext} variant="border-filled"
+                                alternative-text="Next"></lightning-button-icon>
+
+
+                        </div>
+
+                        <template if:true={hasData}>
+                            <lightning-datatable data={paginatedFieldPermissions} columns={fieldColumns} key-field="key"
+                                hide-checkbox-column resize-column-disabled class="custom-table">
+                            </lightning-datatable>
+                        </template>
+
+                        <template if:false={hasData}>
+                            <div class="slds-align_absolute-center slds-p-around_large custom-tableload">
+                                <lightning-icon icon-name='utility:sync' alternative-text='sync' variant='success'
+                                    size='small' title='sync'></lightning-icon>
+                                Loading Field Permissions.....
+
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <template if:true={showSystemPermissions}>
+                    <div class="section-container slds-m-bottom_medium">
+                        <h2 class="slds-text-heading_small slds-m-bottom_small">
+                            System Permissions
+                            <lightning-badge label={systemPermissionsCount}></lightning-badge>
+                        </h2>
+                        <template if:true={systemPermissions.length}>
+                            <lightning-datatable data={systemPermissions} columns={systemPermissionColumns}
+                                key-field="permission" hide-checkbox-column resize-column-disabled
+                                class="modern-table"></lightning-datatable>
+                        </template>
+                        <template if:false={systemPermissions.length}>
+                            <div class="slds-align_absolute-center slds-p-around_large custom-tableload">
+                                No system permissions found for this user
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <template if:true={showSharingRules}>
+                    <div class="section-container slds-m-bottom_medium">
+                        <h2 class="slds-text-heading_small slds-m-bottom_small">
+                            Sharing Rules Access <lightning-badge label={sharingRulesCount}></lightning-badge>
+                        </h2>
+                        <lightning-datatable data={sharingRules} columns={sharingRuleColumns} key-field="id"
+                            hide-checkbox-column resize-column-disabled class="modern-table">
+                        </lightning-datatable>
+                    </div>
+                </template>
+
+                <template if:true={showRoleHierarchy}>
+                    <div class="section-container slds-m-bottom_medium">
+                        <h2 class="slds-text-heading_small slds-m-bottom_small">
+                            Role Hierarchy Visibility <lightning-badge label={roleHierarchyCount}></lightning-badge>
+                        </h2>
+                        <lightning-datatable data={roleHierarchy} columns={roleHierarchyColumns} key-field="id"
+                            hide-checkbox-column resize-column-disabled class="modern-table">
+                        </lightning-datatable>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+</template>

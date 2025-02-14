@@ -1,0 +1,157 @@
+<!-- customCard.html -->
+<template>
+    <div class="MainPage slds-box custom-card">
+        <div class="SideBar">
+            <div class="ToggleBar-form">
+                <h1>
+                    Select Permissions
+                </h1>
+                <div>
+                    <lightning-icon icon-name='utility:standard_objects' alternative-text='standard_objects'
+                        variant='inverse' size='small' title='standard_objects'></lightning-icon>
+
+                        <div class="toggle-container">
+                            <label class="switch">
+                                <input id="check-1" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <label for="check-1" class="toggle-label">Object Permission</label>
+                        </div>
+                     
+
+
+                </div>
+                <div>
+                    <lightning-icon icon-name='standard:custody_entry_verification'
+                    alternative-text='custody_entry_verification' size='small'
+                    title='custody_entry_verification'></lightning-icon>
+
+                        <div class="toggle-container">
+                            <label class="switch">
+                                <input id="check-2" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <label for="check-2" class="toggle-label">Field Permission</label>
+                        </div>
+                     
+
+
+                </div>
+                <div>
+                    <lightning-icon icon-name='utility:record_collection' alternative-text='record_collection'
+                        variant='inverse' size='small' title='record_collection'></lightning-icon>
+
+                        <div class="toggle-container">
+                            <label class="switch">
+                                <input id="check-3" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <label for="check-3" class="toggle-label">Record Type</label>
+                        </div>
+                     
+
+
+                </div>
+                <div>
+                    <lightning-icon icon-name='utility:mark_all_as_read' alternative-text='mark_all_as_read'
+                    variant='inverse' size='small' title='mark_all_as_read'></lightning-icon>
+
+                        <div class="toggle-container">
+                            <label class="switch">
+                                <input id="check-4" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <label for="check-4" class="toggle-label">System Permissions</label>
+                        </div>
+                     
+
+
+                </div>
+                <div>
+                    <lightning-icon icon-name='utility:privately_shared' alternative-text='privately_shared'
+                        variant='inverse' size='small' title='privately_shared'></lightning-icon>
+
+                        <div class="toggle-container">
+                            <label class="switch">
+                                <input id="check-5" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <label for="check-5" class="toggle-label">Sharing Setting</label>
+                        </div>
+                     
+
+
+                </div>
+                <div>
+                    <lightning-icon icon-name='utility:user_role' alternative-text='user_role' variant='inverse'
+                        size='small' title='user_role'></lightning-icon>
+
+                        <div class="toggle-container">
+                            <label class="switch">
+                                <input id="check-6" type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <label for="check-6" class="toggle-label">Role</label>
+                        </div> 
+                </div>
+                 
+            </div>
+
+
+        </div>
+
+        <div class="ReportSection">
+            <div class="header">
+                <lightning-icon icon-name='utility:user' alternative-text='user' variant='inverse' size='small'
+                    title='user'></lightning-icon>
+                <slot name="header">User Access Manager</slot>
+            </div>
+            <div class="content">
+                <slot name="content">This is HEadder</slot>
+            </div>
+        </div>
+    </div>
+
+
+
+     
+
+</template>
+
+
+
+
+<!--
+<div>
+                    <lightning-icon icon-name='utility:record_collection' alternative-text='record_collection'
+                        variant='inverse' size='small' title='record_collection'></lightning-icon>
+                    <input checked="" id="check-2" type="checkbox" />
+                    <label for="check-2">Record Type</label>
+                </div>
+                <div>
+                    <lightning-icon icon-name='standard:custody_entry_verification'
+                        alternative-text='custody_entry_verification' size='small'
+                        title='custody_entry_verification'></lightning-icon>
+                    <input id="check-3" type="checkbox" />
+                    <label for="check-3">Field Permission</label>
+                </div>
+                <div>
+                    <lightning-icon icon-name='utility:mark_all_as_read' alternative-text='mark_all_as_read'
+                        variant='inverse' size='small' title='mark_all_as_read'></lightning-icon>
+                    <input id="check-4" type="checkbox" />
+                    <label for="check-4">System Permissions</label>
+                </div>
+                <div>
+                    <lightning-icon icon-name='utility:privately_shared' alternative-text='privately_shared'
+                        variant='inverse' size='small' title='privately_shared'></lightning-icon>
+                    <input id="check-5" type="checkbox" />
+                    <label for="check-5">Sharing Setting</label>
+                </div>
+                <div>
+                    <lightning-icon icon-name='utility:user_role' alternative-text='user_role' variant='inverse'
+                        size='small' title='user_role'></lightning-icon>
+                    <input id="check-6" type="checkbox" />
+                    <label for="check-6">Role</label>
+                </div>
+
+-->

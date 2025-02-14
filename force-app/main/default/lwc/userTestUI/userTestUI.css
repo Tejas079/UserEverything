@@ -1,0 +1,133 @@
+/*MainPage css */
+.MainPage{
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 5px;
+
+}
+
+.SideBar{
+    
+    background: rgb(26, 23, 66) !important;
+    font-size: 1rem;
+    border-radius: 6px;
+    padding: 6px;
+    color: #ffffff;
+}
+
+
+
+
+/* ReportSection */
+:host {
+    display: block;
+    margin: 1rem;
+}
+
+.custom-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #dddbda;
+}
+
+.header {
+    background: rgb(26, 23, 66) !important;
+    font-size: 1.25rem;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    padding: 6px;
+}
+
+ 
+/* chechbox css*/
+.ToggleBar-form {
+    --_clr-primary: #ffffff;
+    --_clr-hover: #f33195;
+    --_clr-checked: gold;
+  }
+  .ToggleBar-form > div {
+    --_clr-current: var(--_clr-primary);
+  
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .ToggleBar-form > div + div {
+    margin-block-start: 0.5rem;
+  }
+  .ToggleBar-form label {
+    cursor: pointer;
+    color: var(--_clr-current);
+    transition: color 150ms ease-in-out;
+  }
+  
+.switch {
+    font-size: 14px;
+    position: relative;
+    display: inline-block;
+    width: 3.5em;
+    height: 25px;
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* The slider */
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #fff;
+    border: 1px solid #adb5bd;
+    transition: .4s;
+    border-radius: 30px;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 15px;;
+    width: 1.4em;
+    border-radius: 20px;
+    left: 0.27em;
+    bottom: 0.25em;
+    background-color: #adb5bd;
+    transition: .4s;
+  }
+  
+  input:checked + .slider {
+    background-color: #007bff;
+    border: 1px solid #007bff;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #007bff;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(1.4em);
+    background-color: #fff;
+  }
+
+.toggle-container {
+    display: flex;
+   
+    margin: 0.8rem 0;
+}
+
+.toggle-label {
+    margin-top: 0.2rem;
+    text-align: center;
+    font-size: 0.75rem;
+    margin-left: 5px;
+}
+ 
