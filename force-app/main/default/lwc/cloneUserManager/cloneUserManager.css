@@ -15,7 +15,7 @@
 }
 
 .modern-table {
-    --lwc-tableCellSpacing: 1.5rem;
+    --lwc-tableCellSpacing: 0.8rem;
     height: 50vh;
     display: block;
     font-size: medium;
@@ -901,4 +901,18 @@ lightning-button-icon[icon-name="utility:info"]:hover {
 .slds-button_stretch {
     width: 95%;
     margin-left: auto;
+}
+
+ 
+/* Target badges specifically in source type column */
+.source-type-badge .slds-badge {
+    padding: 0.15rem 0.35rem;
+    font-size: 0.7rem;
+    line-height: 1.2;
+    border-radius: 10px;
+    min-width: 60px;
+    text-align: center;
+    display: inline-block;
+    transform: scale(0.9);
+    vertical-align: middle;
 }

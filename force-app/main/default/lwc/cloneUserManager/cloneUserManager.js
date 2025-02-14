@@ -12,7 +12,9 @@ import getUserDetails from '@salesforce/apex/UserPermController.getUserDetails';
 import analyzeUserRisk from '@salesforce/apex/AccessRiskAnalyzer.analyzeUserRisk';
 import revokePermissionSets from '@salesforce/apex/RemediationService.revokePermissionSets';
 import resetSystemPermissions from '@salesforce/apex/RemediationService.resetSystemPermissions';
-
+import undoRevokePermissionSets from '@salesforce/apex/RemediationService.undoRevokePermissionSets';
+import undoResetSystemPermissions from '@salesforce/apex/RemediationService.undoResetSystemPermissions';
+ 
 
 
 // Add these cleaning functions at the top
@@ -50,6 +52,34 @@ export default class CloneUserManager extends LightningElement {
     connectedCallback() {
         this.loadActiveUsers();
     }
+    resetAllData() {
+        this.userDetails = {
+            userName: '',
+            userEmail: '',
+            profileName: '',
+            isActive: false,
+            permissionSets: [],
+            highRiskCount: 0,
+            riskScore: 0,
+            riskLevel: 'Low',
+            criticalFindings: []
+        };
+        
+        this.objectPermissions = [];
+        this.fieldPermissions = [];
+        this.systemPermissions = [];
+        this.recordTypePermissions = [];
+        this.sharingRules = [];
+        this.roleHierarchy = [];
+        
+        // Reset pagination
+        this.currentObjectPage = 1;
+        this.currentFieldPage = 1;
+        
+        // Clear any error states
+        this.error = undefined;
+    }
+
 
     // Load active users for combobox
     async loadActiveUsers() {
@@ -66,37 +96,35 @@ export default class CloneUserManager extends LightningElement {
 
     // Main user change handler
     async handleUserChange(event) {
-        this.selectedUserId = event.detail.value;
-        await this.loadAllUserData();
-        this.isInitialLoading = true;
-        
+        this.currentObjectPage = 1;
+        this.currentFieldPage = 1;
         try {
+            this.selectedUserId = event.detail.value;
+            this.isInitialLoading = true;
+            
+            // Clear previous data immediately
+            this.resetAllData();
+            
+            // Sequential loading for dependent data
+            await this.loadUserDetails();
+            
+            // Parallel loading for independent data
             await Promise.all([
-                this.loadUserDetails(),
                 this.loadRiskAnalysis(),
                 this.loadObjectPermissions(),
                 this.loadFieldPermissions(),
                 this.loadSystemPermissions()
             ]);
+            
         } catch(error) {
-            this.showErrorToast('Load Error', error.body?.message);
+            this.showErrorToast('Load Failed', 
+                error.body?.message ||  // Use optional chaining
+                error.message || 
+                'Failed to load user data'
+            );
+            this.resetAllData();
         } finally {
             this.isInitialLoading = false;
-        }
-    }
-
-    // Consolidated data loading
-    async loadAllUserData() {
-        try {
-            await Promise.all([
-                this.loadUserDetails(),
-                this.loadRiskAnalysis(),
-                this.loadObjectPermissions(),
-                this.loadFieldPermissions(),
-                this.loadSystemPermissions()
-            ]);
-        } catch(error) {
-            this.showErrorToast('Data Load Error', error.body.message);
         }
     }
 
@@ -125,7 +153,9 @@ export default class CloneUserManager extends LightningElement {
             }));
         } catch(error) {
             console.error('User details error:', JSON.stringify(error));
-            this.showErrorToast('User Details Error', error.body.message);
+            this.showErrorToast('User Details Error', 
+                error.body?.message || error.message
+            );
         }
     }
 
@@ -170,18 +200,21 @@ export default class CloneUserManager extends LightningElement {
 
     // Toast utility
     showErrorToast(title, message) {
-        // Handle specific profile change error
-        if(message.includes('Cannot reset permissions for current user')) {
-            message = 'You cannot reset permissions for your own user account';
+        const safeMessage = message || 'Unknown error occurred';
+        
+        // Handle specific error messages
+        if(safeMessage.includes('Cannot reset permissions for current user')) {
+            safeMessage = 'You cannot reset permissions for your own user account';
         }
         
         this.dispatchEvent(new ShowToastEvent({
-            title,
-            message,
+            title: title || 'Error',
+            message: safeMessage,
             variant: 'error',
             mode: 'sticky'
         }));
     }
+    
 
     @track showSystemPermissions = false;
     systemPermissions = [];
@@ -211,7 +244,8 @@ export default class CloneUserManager extends LightningElement {
     objectColumns = [
         { 
             label: 'Object', 
-            fieldName: 'SobjectType', 
+            //fieldName: 'SobjectType', 
+            fieldName: 'objectName',
             type: 'text',
             cellAttributes: { class: 'slds-text-title_bold' } 
         },
@@ -250,6 +284,36 @@ export default class CloneUserManager extends LightningElement {
                 iconName: { fieldName: 'deleteIcon' },
                 iconLabel: { fieldName: 'deleteLabel' }
             }
+        },
+        { 
+            label: 'AssignedBy', 
+            fieldName: 'assignedBy', 
+            type: 'text',
+             
+            sortable: true
+        },
+        { 
+            label: 'AssignmentMethod', 
+            fieldName: 'assignmentMethod', 
+            type: 'text',
+             
+            sortable: true
+        },
+         
+        { 
+            label: 'Source Type', 
+            fieldName: 'sourceType', 
+            type: 'text',
+            cellAttributes: {
+                class: 'source-type-badge {sourceBadgeClass}'
+            },
+            sortable: true
+        },
+        { 
+            label: 'Source Name', 
+            fieldName: 'sourceName', 
+            type: 'text',
+            sortable: true
         }
     ];
 
@@ -348,6 +412,14 @@ export default class CloneUserManager extends LightningElement {
             }));
         }
     }
+    handleClearSearch() {
+        this.searchTerm = '';
+        this.currentObjectPage = 1;
+        this.loadObjectPermissions();
+    }
+    
+
+    
 
     async loadObjectPermissions() {
         try {
@@ -370,20 +442,45 @@ export default class CloneUserManager extends LightningElement {
             });
 
             // Always use server-side total for pagination
-            this.totalObjectRecords = total;
+            // this.totalObjectRecords = total;
             
             // Show only current page results
-            this.objectPermissions = data;
+         // this.objectPermissions = data;
+         this.objectPermissions = data.map(perm => ({
+            objectName: perm.objectName,  // Explicit mapping
+            PermissionsRead: perm.canRead,
+            PermissionsCreate: perm.canCreate,
+            PermissionsEdit: perm.canEdit,
+            PermissionsDelete: perm.canDelete,
+            sourceType: perm.sourceType,
+            assignedBy: perm.assignedBy,
+            assignmentMethod : perm.assignmentMethod,
+            sourceName: perm.sourceName,
+            sourceBadgeClass: this.getSourceBadgeClass(perm.sourceType)
+        }));
+        this.totalObjectRecords = total;
+        this.error = undefined;
             
-        } catch(error) {
-            this.objectPermissions = [];
-            this.totalObjectRecords = 0;
-        }
+    } catch(error) {
+        this.objectPermissions = [];
+        this.totalObjectRecords = 0;
+        this.showErrorToast('Load Error', error.body?.message || error.message);
+    } finally {
+        this.isLoading = false;
+    }
+    }
+    getSourceBadgeClass(sourceType) {
+        const styleMap = {
+            'Profile': 'slds-theme_success',
+            'Permission Set': 'slds-theme_warning',
+            'Package': 'slds-theme_alt-inverse'
+        };
+        return `slds-badge badge-small ${styleMap[sourceType] || ''}`;
     }
 
     async loadFieldPermissions() {
         try {
-            this.isLoading = true;
+            //this.isLoading = true;
             const result = await getFieldPermissions({
                 userId: this.selectedUserId,
                 lastRecordId: this.fieldLastRecordId,
@@ -402,7 +499,7 @@ export default class CloneUserManager extends LightningElement {
         } catch(error) {
             console.error(error);
         } finally {
-            this.isLoading = false;
+            //this.isLoading = false;
         }
     }
 
@@ -572,17 +669,33 @@ export default class CloneUserManager extends LightningElement {
     }
 
     // Corrected handler method
-    async handleObjectSearch(event) {
+    /*async handleObjectSearch(event) {
         this.searchTerm = event.detail.value;
         this.currentObjectPage = 1;
         await this.loadObjectPermissions();
-    }
+    }*/
+        async  handleObjectSearch(event) {
+            //const searchTerm = event.target.value;
+            this.currentObjectPage = 1;
+            
+            this.searchTerm = event.target.value;
+            if(searchTerm.length < 3) {
+                this.showToast('Info', 'Please enter at least 3 characters to search', 'info');
+                return;
+            }
+            this.loadObjectPermissions();
+        }
+
 
     // Modified filtered getter with proper reactivity
-    get filteredObjectPermissions() {
+    /*get filteredObjectPermissions() {
         return this.objectPermissions;
-    }
-
+    }*/
+        get filteredObjectPermissions() {
+            return this.objectPermissions.filter(perm => 
+                perm.objectName.toLowerCase().includes(this.searchTerm?.toLowerCase() || '')
+            );
+        }
     // Modified search handler
     async handleFieldSearch(event) {
         this.fieldSearchTerm = event.detail.value.trim();
@@ -907,9 +1020,14 @@ export default class CloneUserManager extends LightningElement {
         this.selectedAction = event.detail.value;
     }
 
+    // Add to class properties
+    showUndoButton = false;
+    lastActionType = null;
+
+    // Modify executeRemediation
     async executeRemediation() {
         this.isLoading = true;
-        
+        this.isInitialLoading = false;
         try {
             // Add null checks for critical parameters
             if(!this.selectedUserId || !this.selectedAction) {
@@ -925,18 +1043,43 @@ export default class CloneUserManager extends LightningElement {
                 throw new Error('Invalid remediation action selected');
             }
             this.isLoading = false;
+            this.showUndoButton = true;
+            this.lastActionType = this.selectedAction;
             // Refresh data with error handling
-            await Promise.allSettled([
+           /* await Promise.allSettled([
                 this.loadUserDetails(),
                 this.loadSystemPermissions()
-            ]);
-            
+            ]);*/
+            await this.refreshData();
             this.showToast('Success', 'Remediation completed successfully', 'success');
-            
+            this.isInitialLoading = false;
         } catch(error) {
             this.isLoading = false;
             console.error('Remediation error:', error);
             this.showErrorToast('Failed', error.body?.message || error.message);
+        } finally {
+            this.isLoading = false;
+            this.isInitialLoading = false;
+        }
+    }
+
+    // Add undo handler
+    async handleUndo() {
+        try {
+            this.isLoading = true;
+            
+            if(this.lastActionType === 'revokePermissionSets') {
+                await undoRevokePermissionSets({ userId: this.selectedUserId });
+            } else if(this.lastActionType === 'resetSystemPermissions') {
+                await undoResetSystemPermissions({ userId: this.selectedUserId });
+            }
+            
+            this.showToast('Undo Successful', 'Previous action has been reverted', 'success');
+            this.showUndoButton = false;
+            await this.refreshData();
+            
+        } catch(error) {
+            this.showErrorToast('Undo Failed', error.body?.message || error.message);
         } finally {
             this.isLoading = false;
         }
@@ -947,5 +1090,33 @@ export default class CloneUserManager extends LightningElement {
 
     get isInitialLoadingOrIsLoading() {
         return this.isInitialLoading || this.isLoading;
+    }
+    get showSearchWarning() {
+        return this.searchTerm && this.totalObjectRecords >= 2000;
+    }
+
+    // Add data reset method
+    async refreshData() {
+        try {
+            this.isLoading = true;
+            await this.loadUserDetails();
+            await Promise.all([
+                this.loadRiskAnalysis(),
+                this.loadObjectPermissions(),
+                this.loadFieldPermissions(),
+                this.loadSystemPermissions()
+            ]);
+        } catch(error) {
+            this.showErrorToast('Refresh Failed', error.body?.message || error.message);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    // Improved error message handler
+    getErrorMessage(error) {
+        return error.body?.message || 
+               error.message || 
+               'Unknown error occurred while loading user data';
     }
 }

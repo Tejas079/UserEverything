@@ -203,14 +203,24 @@
                                         class="combobox-width">
                                     </lightning-combobox>
                                 </div>
-                                <div class="slds-col slds-size_1-of-2 slds-p-left_medium">
+                                <div class="slds-col slds-size_1-of-2 slds-p-left_medium" style="top: 10px; position: relative;">
                                     <lightning-button
                                         label="Execute Remediation"
                                         variant="destructive"
                                         onclick={executeRemediation}
                                         disabled={isInitialLoadingOrIsLoading}
-                                        class="slds-button_stretch">
+                                        class="slds-button_stretch"> 
+                                    
                                     </lightning-button>
+                                    <template if:true={showUndoButton}>
+                                        <lightning-button
+                                            label="Undo Last Action"
+                                            variant="neutral"
+                                            onclick={handleUndo}
+                                            class="slds-m-left_small"
+                                            title="Undo">
+                                        </lightning-button>
+                                    </template>
                                 </div>
                             </div>
                             <div class="slds-m-top_small">
@@ -324,9 +334,21 @@
                                 Object Permissions <lightning-badge label={totalObjectRecords}></lightning-badge>
                             </h2>
                             <div class="slds-col slds-grid slds-grid_align-end">
-                                <lightning-input type="search" placeholder="Search objects..." value={searchTerm}
-                                    onchange={handleObjectSearch} variant="label-hidden"
-                                    class="slds-m-left_small"></lightning-input>
+                                <lightning-input
+                                    type="search"
+                                    value={searchTerm}
+                                    onchange={handleObjectSearch}
+                                    oniconclick={handleClearSearch}
+                                    placeholder="Search objects..."
+                                    variant="label-hidden"
+                                    class="slds-m-left_small"
+                                    icon-name="utility:search"
+                                    icon-right-name="utility:clear">
+                                </lightning-input>
+                                <div if:true={showSearchWarning} class="slds-m-left_x-small">
+                                    <lightning-icon icon-name="utility:warning" size="x-small" class="slds-text-color_warning"></lightning-icon>
+                                    <span class="slds-text-color_weak slds-text-body_small">Showing first 2000 matches</span>
+                                </div>
                             </div>
                         </div>
                         <div class="slds-grid slds-grid_align-center">
@@ -338,8 +360,16 @@
                                 onclick={handleObjectNext} variant="border-filled"
                                 alternative-text="Next"></lightning-button-icon>
                         </div>
-                        <lightning-datatable data={filteredObjectPermissions} columns={objectColumns} key-field="Id"
-                            hide-checkbox-column resize-column-disabled class="modern-table"></lightning-datatable>
+                        <template if:true={objectPermissions.length}>
+                        <lightning-datatable data={filteredObjectPermissions} columns={objectColumns} key-field="objectName"
+                            hide-checkbox-column  class="custom-table"></lightning-datatable>
+                            </template>
+                            <template if:false={objectPermissions.length}>
+                                <div class="slds-align_absolute-center slds-m-vertical_large">
+                                    No object permissions found
+                                </div>
+                            </template>
+                            
                     </div>
                 </template>
 
