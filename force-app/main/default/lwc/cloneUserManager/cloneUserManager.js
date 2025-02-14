@@ -10,6 +10,9 @@ import getSharingRulesAccess from '@salesforce/apex/UserPermController.getSharin
 import getRoleHierarchy from '@salesforce/apex/UserPermController.getRoleHierarchy';
 import getUserDetails from '@salesforce/apex/UserPermController.getUserDetails';
 import analyzeUserRisk from '@salesforce/apex/AccessRiskAnalyzer.analyzeUserRisk';
+import revokePermissionSets from '@salesforce/apex/RemediationService.revokePermissionSets';
+import resetSystemPermissions from '@salesforce/apex/RemediationService.resetSystemPermissions';
+
 
 
 // Add these cleaning functions at the top
@@ -65,6 +68,21 @@ export default class CloneUserManager extends LightningElement {
     async handleUserChange(event) {
         this.selectedUserId = event.detail.value;
         await this.loadAllUserData();
+        this.isInitialLoading = true;
+        
+        try {
+            await Promise.all([
+                this.loadUserDetails(),
+                this.loadRiskAnalysis(),
+                this.loadObjectPermissions(),
+                this.loadFieldPermissions(),
+                this.loadSystemPermissions()
+            ]);
+        } catch(error) {
+            this.showErrorToast('Load Error', error.body?.message);
+        } finally {
+            this.isInitialLoading = false;
+        }
     }
 
     // Consolidated data loading
@@ -152,14 +170,17 @@ export default class CloneUserManager extends LightningElement {
 
     // Toast utility
     showErrorToast(title, message) {
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title,
-                message,
-                variant: 'error',
-                mode: 'sticky'
-            })
-        );
+        // Handle specific profile change error
+        if(message.includes('Cannot reset permissions for current user')) {
+            message = 'You cannot reset permissions for your own user account';
+        }
+        
+        this.dispatchEvent(new ShowToastEvent({
+            title,
+            message,
+            variant: 'error',
+            mode: 'sticky'
+        }));
     }
 
     @track showSystemPermissions = false;
@@ -872,5 +893,59 @@ export default class CloneUserManager extends LightningElement {
 
     get statusVariant() {
         return this.statusLabel === 'Active' ? 'success' : 'error';
+    }
+
+    // Add to class properties
+    remediationActions = [
+        { label: 'Revoke Permission Sets', value: 'revokePermissionSets' },
+        { label: 'Reset System Permissions', value: 'resetSystemPermissions' }
+    ];
+    selectedAction = 'revokePermissionSets';
+
+    // Add after existing methods
+    handleActionChange(event) {
+        this.selectedAction = event.detail.value;
+    }
+
+    async executeRemediation() {
+        this.isLoading = true;
+        
+        try {
+            // Add null checks for critical parameters
+            if(!this.selectedUserId || !this.selectedAction) {
+                throw new Error('Missing required parameters for remediation');
+            }
+
+            // Explicit method calls instead of dynamic dispatch
+            if(this.selectedAction === 'revokePermissionSets') {
+                await revokePermissionSets({ userId: this.selectedUserId });
+            } else if(this.selectedAction === 'resetSystemPermissions') {
+                await resetSystemPermissions({ userId: this.selectedUserId });
+            } else {
+                throw new Error('Invalid remediation action selected');
+            }
+            this.isLoading = false;
+            // Refresh data with error handling
+            await Promise.allSettled([
+                this.loadUserDetails(),
+                this.loadSystemPermissions()
+            ]);
+            
+            this.showToast('Success', 'Remediation completed successfully', 'success');
+            
+        } catch(error) {
+            this.isLoading = false;
+            console.error('Remediation error:', error);
+            this.showErrorToast('Failed', error.body?.message || error.message);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    // Add new property for initial load
+    @track isInitialLoading = false;
+
+    get isInitialLoadingOrIsLoading() {
+        return this.isInitialLoading || this.isLoading;
     }
 }

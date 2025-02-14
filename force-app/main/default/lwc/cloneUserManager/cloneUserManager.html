@@ -68,6 +68,7 @@
 
                        
                     </div>
+                    
 
                     <div class="toggle-group">
                         <div class="toggle-container">
@@ -158,7 +159,7 @@
                         <div class="risk-meter slds-p-around_medium">
                             <div class="slds-grid slds-grid_align-spread">
                                 <div class="slds-grid slds-grid_align-center">
-                                    <lightning-icon icon-name='standard:account_score' alternative-text='account_score' size='xx-small' title='account_score'></lightning-icon>
+                                     
                                     <span class="slds-text-heading_small">Access Risk Score: {userDetails.riskScore}</span>
                                 </div>
                                 <span class="risk-level-badge slds-badge slds-theme_{userDetails.riskLevel}">
@@ -183,6 +184,52 @@
                                     </ul>
                                 </div>
                             </template>
+                        </div>
+                        <div class="risk-meter slds-p-around_medium">
+                            <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
+                                <div class="slds-grid slds-grid_align-center">
+                                    <lightning-icon icon-name="utility:block_visitor" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                    <h2 class="slds-text-heading_small">Remediation Actions</h2>
+                                </div>
+                            </div>
+
+                            <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_medium">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        label="Action"
+                                        value={selectedAction}
+                                        options={remediationActions}
+                                        onchange={handleActionChange}
+                                        class="combobox-width">
+                                    </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2 slds-p-left_medium">
+                                    <lightning-button
+                                        label="Execute Remediation"
+                                        variant="destructive"
+                                        onclick={executeRemediation}
+                                        disabled={isInitialLoadingOrIsLoading}
+                                        class="slds-button_stretch">
+                                    </lightning-button>
+                                </div>
+                            </div>
+                            <div class="slds-m-top_small">
+                                <div class="slds-text-color_weak slds-grid slds-grid_align-spread">
+                                    <div class="slds-grid slds-grid_align-center slds-size_11-of-12">
+                                        <lightning-icon icon-name="utility:info" size="x-small" class="slds-m-right_xx-small"></lightning-icon>
+                                        <span class="slds-text-body_small">
+                                            Note: This action will permanently revoke selected permissions from the user. 
+                                            Review carefully before executing.
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div if:true={isInitialLoading} class="slds-align_absolute-center slds-m-top_large">
+                                <lightning-spinner alternative-text="Loading user data..."></lightning-spinner>
+                            </div>
+                            <div if:true={isLoading} class="slds-align_absolute-center">
+                                <lightning-spinner alternative-text="Processing remediation..."></lightning-spinner>
+                            </div>
                         </div>
                     </div>
 
@@ -236,18 +283,20 @@
                                         <lightning-icon icon-name="utility:priority" size="x-small" class="slds-m-right_xx-small"></lightning-icon>
                                     </lightning-badge>
                                 </div>
-                                <div class="slds-m-top_small">
-                                    <span class="slds-text-title_caps">
-                                        <lightning-icon icon-name="utility:key" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                        Permission Sets:
-                                    </span>
-                                    <template if:true={userDetails.permissionSets}>
-                                        <div class="slds-grid slds-wrap slds-m-top_xx-small">
-                                            <template for:each={userDetails.permissionSets} for:item="ps">
-                                                <div key={ps} class="slds-col slds-size_1-of-2 slds-p-horizontal_xx-small">
-                                                    <lightning-badge label={ps}></lightning-badge>
-                                                </div>
-                                            </template>
+                            <div class="slds-m-top_small">
+                                <h2 class="slds-text-heading_small slds-m-bottom_small"> 
+                                    <lightning-icon icon-name="utility:key" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                   Permission Sets: </h2>
+                        
+                                <template if:true={userDetails.permissionSets}>
+                                    <div class="slds-scrollable_y slds-border_top slds-p-top_small" style="max-height: 150px; overflow-y: auto;">
+                                            <div class="slds-grid slds-grid_vertical slds-grid_align-start slds-wrap">
+                                                <template for:each={userDetails.permissionSets} for:item="ps">
+                                                    <div key={ps} class="slds-col slds-size_1-of-1 slds-p-vertical_xx-small">
+                                                        <lightning-badge label={ps} class="slds-m-right_xx-small"></lightning-badge>
+                                                    </div>
+                                                </template>
+                                            </div>
                                         </div>
                                     </template>
                                 </div>
@@ -375,6 +424,8 @@
                         </lightning-datatable>
                     </div>
                 </template>
+
+                
             </div>
         </div>
     </lightning-card>
