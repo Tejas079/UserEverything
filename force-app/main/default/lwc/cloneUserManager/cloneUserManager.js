@@ -674,16 +674,21 @@ export default class CloneUserManager extends LightningElement {
         this.currentObjectPage = 1;
         await this.loadObjectPermissions();
     }*/
-        async  handleObjectSearch(event) {
-            //const searchTerm = event.target.value;
-            this.currentObjectPage = 1;
+        async handleObjectSearch(event) {
+            // Get search term from event properly
+            const searchTerm = event.detail.value; // For lightning-input use event.detail.value
+            // const searchTerm = event.target.value; // For standard HTML input
             
-            this.searchTerm = event.target.value;
-            if(searchTerm.length < 3) {
+            // Add null check and proper reference
+            if (searchTerm && searchTerm.length < 3) {
                 this.showToast('Info', 'Please enter at least 3 characters to search', 'info');
                 return;
             }
-            this.loadObjectPermissions();
+            
+            // Assign to class property
+            this.searchTerm = searchTerm;
+            this.currentObjectPage = 1;
+            await this.loadObjectPermissions();
         }
 
 
@@ -1119,4 +1124,55 @@ export default class CloneUserManager extends LightningElement {
                error.message || 
                'Unknown error occurred while loading user data';
     }
+
+    handleCopyToExcel() {
+        try {
+            // Get visible columns and their field names
+            const columns = this.objectColumns.map(col => col.label);
+            const fields = this.objectColumns.map(col => col.fieldName);
+
+            // Create CSV/TSV content
+            const csvContent = [
+                columns.join('\t'), // Use tab separator for Excel
+                ...this.filteredObjectPermissions.map(row => 
+                    fields.map(field => {
+                        // Handle nested objects (like links) and formatted values
+                        const value = row[field];
+                        return typeof value === 'object' ? 
+                            (value.value || value.label || '') : 
+                            (value || '');
+                    }).join('\t')
+                )
+            ].join('\n');
+
+            // Create temporary element for clipboard copy
+            const textArea = document.createElement('textarea');
+            textArea.value = csvContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            // Execute copy command
+            if (document.execCommand('copy')) {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Success',
+                    message: 'Data copied to clipboard - paste into Excel',
+                    variant: 'success'
+                }));
+            } else {
+                throw new Error('Clipboard copy failed');
+            }
+            
+            document.body.removeChild(textArea);
+        } catch (error) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error Copying Data',
+                message: error.message,
+                variant: 'error'
+            }));
+        }
+    }
 }
+
+
+
+//WORKING GOOD FOR THE COPY TO EXCEL 1181

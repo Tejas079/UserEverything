@@ -94,42 +94,42 @@ OFFSET :offset
 
 return result;
 }*/
-   @AuraEnabled(cacheable=true)
+  /* @AuraEnabled(cacheable=true)
     public static Map<String, Object> getObjectPermissions(String userId, Integer page, Integer pageSize, String searchTerm) {
         Map<String, Object> result = new Map<String, Object>();
-        Set<Id> permissionSetIds = getPermissionSetIds(userId);
-        
-        // Get matching objects first if search term exists
-        Set<String> objectNames = new Set<String>();
-        if(String.isNotBlank(searchTerm)) {
-            String searchPattern = '%' + String.escapeSingleQuotes(searchTerm) + '%';
-            List<EntityDefinition> objects = [
-                SELECT QualifiedApiName 
-                FROM EntityDefinition 
-                WHERE QualifiedApiName LIKE :searchPattern
-            ];
-            for(EntityDefinition obj : objects) {
-                objectNames.add(obj.QualifiedApiName);
-            }
-        }
-
-        String query = 'SELECT SobjectType, PermissionsRead, PermissionsCreate, ' +
-                      'PermissionsEdit, PermissionsDelete ' +
-                      'FROM ObjectPermissions ' +
-                      'WHERE ParentId IN :permissionSetIds ';
-        
-        if(!objectNames.isEmpty()) {
-            query += 'AND SobjectType IN :objectNames ';
-        }
-        
-        query += 'ORDER BY SobjectType ' +
-                'LIMIT :pageSize ' +
-                'OFFSET :offset';
-
-        Integer offset = (page - 1) * pageSize;
-        
         try {
-            result.put('data', Database.queryWithBinds(
+            Set<Id> permissionSetIds = getPermissionSetIds(userId);
+            Set<String> objectNames = new Set<String>();
+            
+            if(String.isNotBlank(searchTerm)) {
+                String searchPattern = '%' + String.escapeSingleQuotes(searchTerm) + '%';
+                List<EntityDefinition> objects = [
+                    SELECT QualifiedApiName 
+                    FROM EntityDefinition 
+                    WHERE QualifiedApiName LIKE :searchPattern
+                    LIMIT 2000
+                ];
+                for(EntityDefinition obj : objects) {
+                    objectNames.add(obj.QualifiedApiName);
+                }
+            }
+
+            // Modified query with proper pagination
+            Integer offset = (page - 1) * pageSize;
+            String query = 'SELECT SobjectType, PermissionsRead, PermissionsCreate, ' +
+                          'PermissionsEdit, PermissionsDelete, ParentId ' +
+                          'FROM ObjectPermissions ' +
+                          'WHERE ParentId IN :permissionSetIds ';
+            
+            if(!objectNames.isEmpty()) {
+                query += 'AND SobjectType IN :objectNames ';
+            }
+            
+            query += 'ORDER BY SobjectType ' +
+                    'LIMIT :pageSize ' +
+                    'OFFSET :offset';
+
+            List<ObjectPermissions> perms = Database.queryWithBinds(
                 query,
                 new Map<String, Object>{
                     'permissionSetIds' => permissionSetIds,
@@ -138,31 +138,220 @@ return result;
                     'offset' => offset
                 },
                 AccessLevel.USER_MODE
-            ));
-            
-            // Count query
-            String countQuery = 'SELECT COUNT() FROM ObjectPermissions WHERE ParentId IN :permissionSetIds ';
+            );
+
+            // Get total count for pagination
+            String countQuery = 'SELECT COUNT() FROM ObjectPermissions WHERE ParentId IN :permissionSetIds';
             if(!objectNames.isEmpty()) {
-                countQuery += 'AND SobjectType IN :objectNames';
+                countQuery += ' AND SobjectType IN :objectNames';
             }
-            
-            result.put('total', Database.countQueryWithBinds(
+            Integer total = Database.countQueryWithBinds(
                 countQuery,
                 new Map<String, Object>{
                     'permissionSetIds' => permissionSetIds,
                     'objectNames' => objectNames
                 },
                 AccessLevel.USER_MODE
-            ));
+            );
+
+            // Source mapping logic remains same
+            Map<Id, String> sourceTypeMap = new Map<Id, String>();
+            Map<Id, String> sourceNameMap = new Map<Id, String>();
             
+            for(PermissionSet ps : [
+                SELECT Id, Name, NamespacePrefix, IsOwnedByProfile 
+                FROM PermissionSet 
+                WHERE Id IN :permissionSetIds
+            ]) {
+                if(ps.IsOwnedByProfile) {
+                    List<Profile> profiles = [SELECT Name FROM Profile WHERE Id IN (
+                        SELECT ProfileId FROM PermissionSet WHERE Id = :ps.Id
+                    ) LIMIT 1];
+                    sourceTypeMap.put(ps.Id, 'Profile');
+                    sourceNameMap.put(ps.Id, profiles.isEmpty() ? 'Unknown Profile' : profiles[0].Name);
+                } else {
+                    sourceTypeMap.put(ps.Id, ps.NamespacePrefix == null ? 'Permission Set' : 'Package');
+                    sourceNameMap.put(ps.Id, 
+                        ps.NamespacePrefix == null ? 
+                        ps.Name : 
+                        getNamespaceName(ps.NamespacePrefix)
+                    );
+                }
+            }
+
+            List<ObjectPermissionWrapper> results = new List<ObjectPermissionWrapper>();
+            for(ObjectPermissions op : perms) {
+                results.add(new ObjectPermissionWrapper(
+                    op.SobjectType,
+                    op.PermissionsRead,
+                    op.PermissionsCreate,
+                    op.PermissionsEdit,
+                    op.PermissionsDelete,
+                    sourceTypeMap.get(op.ParentId),
+                    sourceNameMap.get(op.ParentId),
+                    '',
+                    ''
+                ));
+            }
+
+            result.put('data', results);
+            result.put('total', total);
+            system.debug('result------'+result);
+            return result;
+
         } catch(Exception e) {
-            result.put('data', new List<Object>());
-            result.put('total', 0);
+            throw new AuraHandledException('Error retrieving object permissions: ' + e.getMessage());
+        }
+    }  */
+    @AuraEnabled(cacheable=true)
+public static Map<String, Object> getObjectPermissions(String userId, Integer page, Integer pageSize, String searchTerm) {
+    Map<String, Object> result = new Map<String, Object>();
+    try {
+        // Step 1: Get Permission Set IDs for the user
+        Set<Id> permissionSetIds = getPermissionSetIds(userId);
+        Set<String> objectNames = new Set<String>();
+
+        // Step 2: Handle search term filtering
+        if (String.isNotBlank(searchTerm)) {
+            String searchPattern = '%' + String.escapeSingleQuotes(searchTerm) + '%';
+            List<EntityDefinition> objects = [
+                SELECT QualifiedApiName 
+                FROM EntityDefinition 
+                WHERE QualifiedApiName LIKE :searchPattern
+                LIMIT 2000
+            ];
+            for (EntityDefinition obj : objects) {
+                objectNames.add(obj.QualifiedApiName);
+            }
+        }
+
+        // Step 3: Query ObjectPermissions with pagination
+        Integer offset = (page - 1) * pageSize;
+        String query = 'SELECT SobjectType, PermissionsRead, PermissionsCreate, ' +
+                      'PermissionsEdit, PermissionsDelete, ParentId ' +
+                      'FROM ObjectPermissions ' +
+                      'WHERE ParentId IN :permissionSetIds ';
+        
+        if (!objectNames.isEmpty()) {
+            query += 'AND SobjectType IN :objectNames ';
         }
         
+        query += 'ORDER BY SobjectType ' +
+                'LIMIT :pageSize ' +
+                'OFFSET :offset';
+
+        List<ObjectPermissions> perms = Database.queryWithBinds(
+            query,
+            new Map<String, Object>{
+                'permissionSetIds' => permissionSetIds,
+                'objectNames' => objectNames,
+                'pageSize' => pageSize,
+                'offset' => offset
+            },
+            AccessLevel.USER_MODE
+        );
+
+        // Step 4: Count total records for pagination
+        String countQuery = 'SELECT COUNT() FROM ObjectPermissions WHERE ParentId IN :permissionSetIds';
+        if (!objectNames.isEmpty()) {
+            countQuery += ' AND SobjectType IN :objectNames';
+        }
+        Integer total = Database.countQueryWithBinds(
+            countQuery,
+            new Map<String, Object>{
+                'permissionSetIds' => permissionSetIds,
+                'objectNames' => objectNames
+            },
+            AccessLevel.USER_MODE
+        );
+
+        // Step 5: Map Permission Set/Profile details
+        Map<Id, String> sourceTypeMap = new Map<Id, String>();
+        Map<Id, String> sourceNameMap = new Map<Id, String>();
+        Map<Id, String> assignedByMap = new Map<Id, String>();
+        Map<Id, String> assignmentMethodMap = new Map<Id, String>();
+
+        // Query Permission Sets and Profiles
+        for (PermissionSet ps : [
+            SELECT Id, Name, NamespacePrefix, IsOwnedByProfile, CreatedBy.Name 
+            FROM PermissionSet 
+            WHERE Id IN :permissionSetIds
+        ]) {
+            if (ps.IsOwnedByProfile) {
+                // Handle Profiles
+                List<Profile> profiles = [
+                    SELECT Name 
+                    FROM Profile 
+                    WHERE Id IN (
+                        SELECT ProfileId 
+                        FROM PermissionSet 
+                        WHERE Id = :ps.Id
+                    ) 
+                    LIMIT 1
+                ];
+                sourceTypeMap.put(ps.Id, 'Profile');
+                sourceNameMap.put(ps.Id, profiles.isEmpty() ? 'Unknown Profile' : profiles[0].Name);
+                assignedByMap.put(ps.Id, 'System'); // Profiles are system-managed
+                assignmentMethodMap.put(ps.Id, 'System Assignment');
+            } else {
+                // Handle Permission Sets
+                sourceTypeMap.put(ps.Id, ps.NamespacePrefix == null ? 'Permission Set' : 'Package');
+                sourceNameMap.put(ps.Id, ps.NamespacePrefix == null ? ps.Name : getNamespaceName(ps.NamespacePrefix));
+                assignedByMap.put(ps.Id, ps.CreatedBy.Name); // Track who created the Permission Set
+                assignmentMethodMap.put(ps.Id, 'Manual Assignment');
+            }
+        }
+
+        // Step 6: Prepare enriched results
+        List<ObjectPermissionWrapper> results = new List<ObjectPermissionWrapper>();
+        for (ObjectPermissions op : perms) {
+            results.add(new ObjectPermissionWrapper(
+                op.SobjectType,
+                op.PermissionsRead,
+                op.PermissionsCreate,
+                op.PermissionsEdit,
+                op.PermissionsDelete,
+                sourceTypeMap.get(op.ParentId),
+                sourceNameMap.get(op.ParentId),
+                assignedByMap.get(op.ParentId),
+                assignmentMethodMap.get(op.ParentId)
+            ));
+        }
+
+        result.put('data', results);
+        result.put('total', total);
+
         return result;
+    } catch (Exception e) {
+        throw new AuraHandledException('Error retrieving object permissions: ' + e.getMessage());
     }
-    
+}
+
+// Wrapper class for enriched permission data
+public class ObjectPermissionWrapper {
+    @AuraEnabled public String objectName;
+    @AuraEnabled public Boolean canRead;
+    @AuraEnabled public Boolean canCreate;
+    @AuraEnabled public Boolean canEdit;
+    @AuraEnabled public Boolean canDelete;
+    @AuraEnabled public String sourceType; // Profile, Permission Set, or Package
+    @AuraEnabled public String sourceName; // Name of the Profile or Permission Set
+    @AuraEnabled public String assignedBy; // Who assigned the permission
+    @AuraEnabled public String assignmentMethod; // How the permission was assigned
+
+    public ObjectPermissionWrapper(String obj, Boolean read, Boolean create, Boolean edit, Boolean del, 
+                                   String srcType, String srcName, String assignedBy, String assignmentMethod) {
+        objectName = obj;
+        canRead = read;
+        canCreate = create;
+        canEdit = edit;
+        canDelete = del;
+        sourceType = srcType;
+        sourceName = srcName;
+        this.assignedBy = assignedBy;
+        this.assignmentMethod = assignmentMethod;
+    }
+}
     
     
     
@@ -363,11 +552,11 @@ return result;
     }
 }
     
-  /*private static String getSessionIdFromVisualForce() {
+  private static String getSessionIdFromVisualForce() {
         return Page.sessionidpage.getContent().toString().trim();
-    }*/
+    } 
     
-   /*AuraEnabled(cacheable=true)
+   @AuraEnabled(cacheable=true)
     public static List<RecordTypeWrapper> getRecordTypeAssignments(Id userId) {
         system.debug('userId-'+userId);
         
@@ -463,11 +652,11 @@ return result;
         System.debug('Record Type Results: ' + JSON.serializePretty(results));
         return results;
     }
-    */
+    
     
     // Add to UserPermController.cls
      
-@AuraEnabled(cacheable=true)
+/*@AuraEnabled(cacheable=true)
 public static Map<String, Boolean> getSystemLevelPermissions(String userId) {
     Map<String, Boolean> permissions = new Map<String, Boolean>{
         'View_All_Data' => false,
@@ -517,7 +706,73 @@ public static Map<String, Boolean> getSystemLevelPermissions(String userId) {
     }
       System.debug('permissions==='+permissions);
     return permissions;
-}    
+} */
+@AuraEnabled(cacheable=true)
+public static Map<String, Map<String, Object>> getSystemLevelPermissions(String userId) {
+    // Define the permissions to check and initialize results
+    Map<String, Map<String, Object>> permissions = new Map<String, Map<String, Object>>{
+        'View_All_Data' => new Map<String, Object>{'Value' => false, 'Sources' => new List<String>()},
+        'Modify_All_Data' => new Map<String, Object>{'Value' => false, 'Sources' => new List<String>()},
+        'Manage_Users' => new Map<String, Object>{'Value' => false, 'Sources' => new List<String>()},
+        'Author_Apex' => new Map<String, Object>{'Value' => false, 'Sources' => new List<String>()},
+        'Customize_Application' => new Map<String, Object>{'Value' => false, 'Sources' => new List<String>()},
+        'View_Setup' => new Map<String, Object>{'Value' => false, 'Sources' => new List<String>()}
+    };
+
+    try {
+        // Fetch the user's ProfileId
+        List<User> users = [SELECT ProfileId FROM User WHERE Id = :userId LIMIT 1];
+        if (users.isEmpty()) return permissions;
+        User u = users[0];
+
+        // Collect all relevant PermissionSetIds (Profile + Assigned Permission Sets)
+        Set<Id> permissionSetIds = new Set<Id>{u.ProfileId};
+
+        for (PermissionSetAssignment psa : [
+            SELECT PermissionSetId 
+            FROM PermissionSetAssignment 
+            WHERE AssigneeId = :userId
+        ]) {
+            if (psa.PermissionSetId != null) {
+                permissionSetIds.add(psa.PermissionSetId);
+            }
+        }
+
+        // Query PermissionSets to check for permissions
+        for (PermissionSet ps : [
+            SELECT Id, Name, PermissionsViewAllData, PermissionsModifyAllData,
+                   PermissionsManageUsers, PermissionsAuthorApex,
+                   PermissionsCustomizeApplication, PermissionsViewSetup
+            FROM PermissionSet 
+            WHERE Id IN :permissionSetIds
+        ]) {
+            if (ps != null) {
+                // Check each permission and update the map
+                updatePermissionDetails(permissions, 'View_All_Data', ps.PermissionsViewAllData, ps.Name);
+                updatePermissionDetails(permissions, 'Modify_All_Data', ps.PermissionsModifyAllData, ps.Name);
+                updatePermissionDetails(permissions, 'Manage_Users', ps.PermissionsManageUsers, ps.Name);
+                updatePermissionDetails(permissions, 'Author_Apex', ps.PermissionsAuthorApex, ps.Name);
+                updatePermissionDetails(permissions, 'Customize_Application', ps.PermissionsCustomizeApplication, ps.Name);
+                updatePermissionDetails(permissions, 'View_Setup', ps.PermissionsViewSetup, ps.Name);
+            }
+        }
+    } catch (Exception e) {
+        System.debug('Error: ' + e.getMessage());
+    }
+    system.debug('permissions==='+permissions);
+    return permissions;
+}
+
+// Helper method to update permission details
+private static void updatePermissionDetails(Map<String, Map<String, Object>> permissions, String key, Boolean value, String sourceName) {
+    if (value) {
+        permissions.get(key).put('Value', true);
+        List<String> sources = (List<String>) permissions.get(key).get('Sources');
+        if (!sources.contains(sourceName)) {
+            sources.add(sourceName);
+        }
+    }
+}   
 
 // Add new Apex methods
 @AuraEnabled(cacheable=true)
@@ -707,5 +962,41 @@ private static List<String> getPermissionSets(Id userId) {
 
     // Return the list of permission set names
     return permissionSetNames;
+}
+
+// Wrapper class with source info
+/*public class ObjectPermissionWrapper {
+    @AuraEnabled public String objectName;
+    @AuraEnabled public Boolean canRead;
+    @AuraEnabled public Boolean canCreate;
+    @AuraEnabled public Boolean canEdit;
+    @AuraEnabled public Boolean canDelete;
+    @AuraEnabled public String sourceType;
+    @AuraEnabled public String sourceName;
+    @AuraEnabled public String assignedBy;
+    @AuraEnabled public String assignmentMethod;
+
+    public ObjectPermissionWrapper(String obj, Boolean read, Boolean create, Boolean edit, Boolean del, String srcType, String srcName, String assignedBy, String assignmentMethod) {
+        objectName = obj;
+        canRead = read;
+        canCreate = create;
+        canEdit = edit;
+        canDelete = del;
+        sourceType = srcType;
+        sourceName = srcName;
+        this.assignedBy = assignedBy;
+        this.assignmentMethod = assignmentMethod;
+    }
+}*/
+
+// Add helper method to handle namespace prefixes
+private static String getNamespaceName(String namespacePrefix) {
+    List<PackageLicense> licenses = [SELECT NamespacePrefix, AllowedLicenses 
+                                    FROM PackageLicense 
+                                    WHERE NamespacePrefix = :namespacePrefix
+                                    LIMIT 1];
+    return licenses.isEmpty() ? 
+        namespacePrefix : 
+        namespacePrefix + ' (' + licenses[0].AllowedLicenses + ')';
 }
 }
